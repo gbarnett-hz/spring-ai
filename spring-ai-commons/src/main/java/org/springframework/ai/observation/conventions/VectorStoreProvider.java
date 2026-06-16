@@ -62,6 +62,11 @@ public enum VectorStoreProvider {
 	GEMFIRE("gemfire"),
 
 	/**
+	 * Vector store provided by Hazelcast.
+	 */
+	HAZELCAST("hazelcast"),
+
+	/**
 	 * Vector store provided by MariaDB.
 	 */
 	MARIADB("mariadb"),

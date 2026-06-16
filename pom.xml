@@ -90,6 +90,7 @@
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-couchbase</module>
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-elasticsearch</module>
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-gemfire</module>
+		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-hazelcast</module>
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-mariadb</module>
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-milvus</module>
 		<module>auto-configurations/vector-stores/spring-ai-autoconfigure-vector-store-mongodb-atlas</module>
@@ -174,6 +175,7 @@
 		<module>starters/spring-ai-starter-vector-store-couchbase</module>
 		<module>starters/spring-ai-starter-vector-store-elasticsearch</module>
 		<module>starters/spring-ai-starter-vector-store-gemfire</module>
+		<module>starters/spring-ai-starter-vector-store-hazelcast</module>
 		<module>starters/spring-ai-starter-vector-store-mariadb</module>
 		<module>starters/spring-ai-starter-vector-store-milvus</module>
 		<module>starters/spring-ai-starter-vector-store-mongodb-atlas</module>
@@ -196,6 +198,7 @@
 		<module>vector-stores/spring-ai-couchbase-store</module>
 		<module>vector-stores/spring-ai-elasticsearch-store</module>
 		<module>vector-stores/spring-ai-gemfire-store</module>
+		<module>vector-stores/spring-ai-hazelcast-store</module>
 		<module>vector-stores/spring-ai-mariadb-store</module>
 		<module>vector-stores/spring-ai-milvus-store</module>
 		<module>vector-stores/spring-ai-mongodb-atlas-store</module>
@@ -275,6 +278,7 @@
 		<fastjson2.version>2.0.46</fastjson2.version>
 		<gemfire.testcontainers.version>2.3.3</gemfire.testcontainers.version>
 		<grpc-netty-shaded.version>1.76.0</grpc-netty-shaded.version>
+		<hazelcast.version>5.8.0-SNAPSHOT</hazelcast.version>
 		<jsonschema.version>5.0.0</jsonschema.version>
 		<jsoup.version>1.22.2</jsoup.version>
 		<jtokkit.version>1.1.0</jtokkit.version>

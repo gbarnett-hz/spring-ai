@@ -1,0 +1,162 @@
+= Hazelcast Vector Store
+
+This section walks you through setting up the `HazelcastVectorStore` to store document embeddings and perform similarity searches using link:https://hazelcast.com/[Hazelcast].
+
+The implementation uses Hazelcast vector collections and requires an existing `HazelcastInstance` bean.
+Spring AI does not create a Hazelcast member or client for you.
+
+== Prerequisites
+
+1. A Hazelcast 5.8 or later member or client configuration with vector collection support.
+2. An `EmbeddingModel` bean to compute document embeddings.
+Refer to the xref:api/embeddings.adoc#available-implementations[EmbeddingModel] section for more information.
+
+== Auto-configuration
+
+Add the Hazelcast VectorStore Spring Boot starter to your project's Maven build file:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-vector-store-hazelcast</artifactId>
+</dependency>
+----
+
+or to your Gradle `build.gradle` file:
+
+[source,groovy]
+----
+dependencies {
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-hazelcast'
+}
+----
+
+The auto-configuration is conditional on an existing `HazelcastInstance` bean and an `EmbeddingModel` bean.
+It creates the `HazelcastVectorStore` only when both beans are present.
+
+For client-server deployments, configure Spring Boot's Hazelcast support to create a Hazelcast client bean.
+For example, place a Hazelcast client configuration on the classpath and point Spring Boot to it:
+
+[source,properties]
+----
+spring.hazelcast.config=classpath:hazelcast-client.yaml
+----
+
+The client configuration can then define the cluster name and network addresses:
+
+[source,yaml]
+----
+hazelcast-client:
+  cluster-name: my-cluster
+  network:
+    cluster-members:
+      - 127.0.0.1:5701
+----
+
+=== Configuration Properties
+
+You can use the following properties in your Spring Boot configuration to further configure the `HazelcastVectorStore`:
+
+[stripes=even]
+|===
+|Property |Default value
+
+|`spring.ai.vectorstore.hazelcast.collection-name` |`spring-ai-vector-store`
+|`spring.ai.vectorstore.hazelcast.initialize-schema` |`false`
+|`spring.ai.vectorstore.hazelcast.index-name` |`default`
+|`spring.ai.vectorstore.hazelcast.metric` |`COSINE`
+|`spring.ai.vectorstore.hazelcast.backup-count` |`1`
+|`spring.ai.vectorstore.hazelcast.async-backup-count` |`0`
+|`spring.ai.vectorstore.hazelcast.max-degree` |`32`
+|`spring.ai.vectorstore.hazelcast.ef-construction` |`128`
+|`spring.ai.vectorstore.hazelcast.use-deduplication` |`true`
+|===
+
+Set `spring.ai.vectorstore.hazelcast.initialize-schema=true` to let Spring AI create the Hazelcast vector collection configuration from the embedding model dimensions.
+When `initialize-schema=false`, Spring AI uses the existing Hazelcast vector collection configuration and does not create or mutate schema.
+
+== Manual Configuration
+
+To use the `HazelcastVectorStore` without Spring Boot auto-configuration, add the vector store dependency to your project:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-hazelcast-store</artifactId>
+</dependency>
+----
+
+For Gradle users, add the following dependency:
+
+[source,groovy]
+----
+dependencies {
+    implementation 'org.springframework.ai:spring-ai-hazelcast-store'
+}
+----
+
+Then create a `VectorStore` bean using an existing `HazelcastInstance`:
+
+[source,java]
+----
+@Bean
+VectorStore vectorStore(HazelcastInstance hazelcastInstance, EmbeddingModel embeddingModel) {
+    return HazelcastVectorStore.builder(hazelcastInstance, embeddingModel)
+        .collectionName("spring-ai-vector-store")
+        .initializeSchema(true)
+        .build();
+}
+----
+
+== Usage
+
+Create documents and add them to the vector store:
+
+[source,java]
+----
+List<Document> documents = List.of(
+    new Document("Spring AI rocks", Map.of("source", "guide")),
+    new Document("Hazelcast stores vectors", Map.of("source", "reference")));
+
+vectorStore.add(documents);
+----
+
+Retrieve similar documents with `topK`:
+
+[source,java]
+----
+List<Document> results = vectorStore.similaritySearch(
+    SearchRequest.builder().query("Spring").topK(5).build());
+----
+
+You can also limit returned documents using a similarity threshold.
+The Hazelcast distance score is normalized to Spring AI's similarity score before the threshold is applied.
+
+[source,java]
+----
+List<Document> results = vectorStore.similaritySearch(SearchRequest.builder()
+    .query("Spring")
+    .topK(5)
+    .similarityThreshold(0.7)
+    .build());
+----
+
+== Supported Operations
+
+`HazelcastVectorStore` supports adding documents, deleting documents by id, and similarity search using `topK` and similarity threshold filtering.
+Returned documents preserve the Spring AI document id, text, metadata, and score.
+
+Metadata filter expressions are not supported.
+Passing a filter expression to `similaritySearch` or using filter-based delete throws an `UnsupportedOperationException`.
+
+== Accessing the Native Client
+
+The `HazelcastVectorStore` exposes the underlying `HazelcastInstance` through `getNativeClient()`:
+
+[source,java]
+----
+HazelcastVectorStore vectorStore = context.getBean(HazelcastVectorStore.class);
+Optional<HazelcastInstance> nativeClient = vectorStore.getNativeClient();
+----
